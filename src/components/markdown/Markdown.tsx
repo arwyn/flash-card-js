@@ -9,7 +9,7 @@ interface MarkdownItPlugin {
 
 interface MarkdownProps {
     text: string;
-    inline: boolean;
+    inline?: boolean;
 }
 
 const mdPlugins: MarkdownItPlugin[] = [
