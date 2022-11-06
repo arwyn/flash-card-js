@@ -3,11 +3,29 @@ import { Card, CardProps, CardContent, CardActions, Button, ButtonProps, Grid } 
 import { LooksOne, LooksTwo, Looks3, Looks4, ThumbUp, ThumbDown } from '@mui/icons-material';
 import { Markdown } from '../markdown/Markdown';
 import { randomizeList, shuffle } from '../../util/random.util';
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 export type ButtonAction = (button: any, answerId?: string) => void;
 
 export type AnswerAction = (questionId?: string, nswerId?: string) => void;
+
+export interface Answer {
+    /** answer id */
+    id: string;
+    /** inline markdown of text */
+    markdown: string;
+}
+
+export interface Answers {
+    /** Correct Answer (Inline Markdown) */
+    correct: Answer;
+    /**
+     * Possible Incorrect Answers (Inline Markdown)
+     * 
+     * Upto 3 elements will be chosen.
+     */
+    wrong: { [id: string]: string };
+}
 
 /**
  * The Question Card Properties
@@ -17,16 +35,10 @@ export interface QuestionCardProps {
     id?: string;
     /** Question (Block Markdown) */
     question: string;
-    /** Correct Answer (Inline Markdown) */
-    correctAnswer: string;
-    /**
-     * Possible Incorrect Answers (Inline Markdown)
-     * 
-     * Upto 3 elements will be chosen.
-     */
-    incorrectAnswers: string[];
+    /** Answer marksdown */
+    answers: Answers;
     /** MUI Card properties */
-    card?: CardProps,
+    card?: CardProps;
     /** MUI Button Properties */
     button?: ButtonProps;
     /**
@@ -58,8 +70,7 @@ export interface QuestionCardProps {
  */
 export const QuestionCard = ({
     question,
-    correctAnswer,
-    incorrectAnswers = [],
+    answers,
     card = { variant: 'outlined' },
     button = {variant: 'contained', fullWidth: true},
     onCorrectAnswer = () => {},
@@ -68,18 +79,22 @@ export const QuestionCard = ({
     wrongIcon = <ThumbDown/>,
     ...props
 }: QuestionCardProps) => {
-    const [answers,] = useState(shuffle([
-            { correct: true, text: correctAnswer}
-        ].concat(randomizeList(incorrectAnswers.map(text => ({correct: false, text})), 3)))
-        .map((answer, i) => ({...answer, id: `answer-${i}`})));
+    const selectedAnswers = useMemo(() => shuffle([
+            { correct: true, text: answers.correct.markdown, id: answers.correct.id }
+        ].concat(randomizeList(Object.entries(answers.wrong).map(([id, text]) => ({id, correct: false, text})), 3))),
+        [answers]);
 
     const [disabled, setDisabled] = useState<string[]>([]);
+
+    useEffect(() => {
+        setDisabled([]);
+    }, [answers]);
 
     const icons = [(<LooksOne/>), (<LooksTwo/>), (<Looks3/>), (<Looks4/>)];
 
     const action = (button: any, answerId: string) => {
         setDisabled((prev) => prev.concat([answerId]));
-        if (answers.find(({id}) => id === answerId)?.correct as boolean){
+        if (selectedAnswers.find(({id}) => id === answerId)?.correct as boolean){
             onCorrectAnswer(props.id, answerId);
         }
         else {
@@ -94,7 +109,7 @@ export const QuestionCard = ({
             </CardContent>
             <CardActions>
                 <Grid container spacing={2}>
-                    {answers.map(({text, correct, id}, i) => {
+                    {selectedAnswers.map(({text, correct, id}, i) => {
                         const off = disabled.find(item => item === id) !== undefined;
                         const icon = off ? (correct ? correctIcon : wrongIcon) : icons[i];
                         const color = off ? (correct ? 'success' : 'error') : 'primary';
