@@ -98,6 +98,7 @@ export const QuestionCard = ({
                         const off = disabled.find(item => item === id) !== undefined;
                         const icon = off ? (correct ? correctIcon : wrongIcon) : icons[i];
                         const color = off ? (correct ? 'success' : 'error') : 'primary';
+                        // styled()
                         return (
                             <Grid item xs={6} key={i}>
                                 <Button 
@@ -105,7 +106,15 @@ export const QuestionCard = ({
                                     disabled={off}
                                     startIcon={icon}
                                     color={color}
-                                    onClick={(button) => action(button, id)}>
+                                    onClick={(button) => action(button, id)}
+                                    sx={[
+                                        (theme) => ({
+                                            '&:disabled': { 
+                                                backgroundColor: theme.palette[color][theme.palette.mode],
+                                                color: correct ? theme.palette[color].contrastText : (theme.palette.mode === 'dark' ? '#0009' : '#fff9')
+                                            } 
+                                        })
+                                    ]}>
                                         <Markdown inline text={text}/>
                                 </Button>
                             </Grid>
