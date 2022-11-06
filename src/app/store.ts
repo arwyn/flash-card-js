@@ -1,11 +1,13 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import counterReducer from '../features/counter/counterSlice';
 import cardStack from './store/card-stack';
+import cardSession from './store/card-session';
 
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
-    cardStack
+    cardStack,
+    cardSession
   },
 });
 

@@ -23,17 +23,20 @@ export interface Card {
     question: string,
     answers: Answers
 }
+export interface Cards {
+    [id: string]: Card;
+}
+
 export interface Score {
     failures: number,
     successSpeed: number
 }
+export interface Scores {
+    [id: string]: Score;
+}
 export interface QuestionCardStackState {
-    cards: {
-        [id: string]: Card
-    },
-    scores: {
-        [id: string]: Score
-    },
+    cards: Cards,
+    scores: Scores,
     stack: string[]
 }
 

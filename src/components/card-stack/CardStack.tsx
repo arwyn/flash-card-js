@@ -7,10 +7,14 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { incrementFailure, markSuccessAndRemove, moveCardToBottomOfStack } from '../../app/store/card-stack';
 import { shallowEqual } from 'react-redux';
 
+export interface CardStackProps {
+    successPause?: number
+};
+
 /**
  * Question Card Stack
  */
-export const CardStack = () => {
+export const CardStack = ({successPause = 1000}: CardStackProps) => {
     const top = useAppSelector((state) => {
         const entry = Object.entries(state.cardStack.cards).find(([key,]) => key === state.cardStack.stack[0]);
         return {
@@ -18,8 +22,6 @@ export const CardStack = () => {
             card: entry ? entry[1] : undefined
         };
     }, shallowEqual);
-
-    console.log(top);
 
     const [errorCount, setErrorCount] = useState(0);
     const [startTime, setStartTime] = useState(Date.now());
@@ -44,7 +46,7 @@ export const CardStack = () => {
                 dispatch(markSuccessAndRemove({eclipsedTime, questionId: questionId ? questionId : top.id}));
                 setStartTime(Date.now());
             }
-        }, 1000);
+        }, successPause);
     }
 
     return top.card ? (<QuestionCard 

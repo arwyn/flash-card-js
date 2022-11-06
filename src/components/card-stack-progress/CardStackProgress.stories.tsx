@@ -1,7 +1,7 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { configureStore } from '@reduxjs/toolkit';
-import { CardStack } from './CardStack';
+import { CardStackProgress } from './CardStackProgress';
 import { createCardStackSlice, QuestionCardStackState } from '../../app/store/card-stack';
 import { Provider } from 'react-redux';
 
@@ -12,7 +12,7 @@ const MockedState: QuestionCardStackState = {
     stack: []
 };
 
-const FullMockedState: QuestionCardStackState = Array.from({length: 10}, (_, i) => ({
+const NewStackProgressMockedState: QuestionCardStackState = Array.from({length: 10}, (_, i) => ({
     id: `question-${i}`,
     question: `# Question ${i}\n\nAuto-generated mock question ${i}`,
     answers: {
@@ -29,6 +29,10 @@ const FullMockedState: QuestionCardStackState = Array.from({length: 10}, (_, i) 
     return state;
 }, Object.assign({}, MockedState));
 
+const PartialStackProgressMockedState: QuestionCardStackState = Object.assign({}, NewStackProgressMockedState, {
+    scores: Object.fromEntries(Object.keys(NewStackProgressMockedState.scores).map((id, i) => ([id, {failures: i % 3, successSpeed: i % 2 * .3 }])))
+});
+
 const MockStore = ({ state, children }: {state: QuestionCardStackState, children: any}) => {
     const slice = createCardStackSlice(state);
     const store = configureStore({
@@ -41,19 +45,24 @@ const MockStore = ({ state, children }: {state: QuestionCardStackState, children
 }
 
 export default {
-    title: 'StoreBacked/CardStack',
-    component: CardStack,
+    title: 'StoreBacked/CardStackProgress',
+    component: CardStackProgress,
     excludeStories: /.*MockedState$/
-} as ComponentMeta<typeof CardStack>;
+} as ComponentMeta<typeof CardStackProgress>;
 
-const Template: ComponentStory<typeof CardStack> = (args) => <CardStack/>;
+const Template: ComponentStory<typeof CardStackProgress> = (args) => <CardStackProgress/>;
 
 export const Default = Template.bind({});
 Default.decorators = [
     (story) => <MockStore state={MockedState}>{story()}</MockStore>,
 ];
 
-export const Full = Template.bind({});
-Full.decorators = [
-    (story) => <MockStore state={FullMockedState}>{story()}</MockStore>,
+export const NewStackProgress = Template.bind({});
+NewStackProgress.decorators = [
+    (story) => <MockStore state={NewStackProgressMockedState}>{story()}</MockStore>,
+];
+
+export const PartialStackProgress = Template.bind({});
+PartialStackProgress.decorators = [
+    (story) => <MockStore state={PartialStackProgressMockedState}>{story()}</MockStore>,
 ];
