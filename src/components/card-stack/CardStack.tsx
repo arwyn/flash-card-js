@@ -1,20 +1,20 @@
 import React from 'react';
-import { Card, CardContent } from '@mui/material';
 import { ArticleOutlined } from '@mui/icons-material';
 import { QuestionCard } from '../question-card/QuestionCard';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { incrementFailure, markSuccessAndRemove, moveCardToBottomOfStack } from '../../app/store/card-stack';
+import { incrementFailure, markSuccessAndRemove, moveCardToBottomOfStack, Scores } from '../../app/store/card-stack';
 import { shallowEqual } from 'react-redux';
 
 export interface CardStackProps {
-    successPause?: number
+    onComplete?: (scores: Scores) => void;
+    successPause?: number;
 };
 
 /**
  * Question Card Stack
  */
-export const CardStack = ({successPause = 1000}: CardStackProps) => {
+export const CardStack = ({successPause = 1000, onComplete = () => {}}: CardStackProps) => {
     const top = useAppSelector((state) => {
         const entry = Object.entries(state.cardStack.cards).find(([key,]) => key === state.cardStack.stack[0]);
         return {
@@ -22,6 +22,10 @@ export const CardStack = ({successPause = 1000}: CardStackProps) => {
             card: entry ? entry[1] : undefined
         };
     }, shallowEqual);
+
+    const scores = useAppSelector((state) => {
+        return state.cardStack.scores;
+    });
 
     const [errorCount, setErrorCount] = useState(0);
     const [startTime, setStartTime] = useState(Date.now());
@@ -49,11 +53,15 @@ export const CardStack = ({successPause = 1000}: CardStackProps) => {
         }, successPause);
     }
 
+    if (!top.card && Object.keys(scores).length > 0) {
+        onComplete(scores);
+    }
+
     return top.card ? (<QuestionCard 
             id={top.id} 
             onCorrectAnswer={onCorrectAnswer} 
             onWrongAnswer={onWrongAnswer} 
             question={top.card.question} 
             answers={top.card.answers}/>)
-        : (<Card><CardContent><ArticleOutlined/></CardContent></Card>);
+        : (<ArticleOutlined/>);
 };

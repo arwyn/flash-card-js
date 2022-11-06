@@ -26,7 +26,7 @@ export const CardStackProgress = ({
             <LinearProgress variant="buffer" value={completed} valueBuffer={started} />
         </Box>
         <Box sx={{ minWidth: 35 }}>
-            <Typography variant="body2" color="text.secondary">{`${Math.round(completed)}%`}</Typography>
+            <Typography variant="caption" color="primary.contrastText">{`${Math.round(completed)}%`}</Typography>
         </Box>
     </Box>);
 };

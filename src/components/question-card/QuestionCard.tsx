@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardProps, CardContent, CardActions, Button, ButtonProps, Grid } from '@mui/material';
+import { Button, ButtonProps, Grid } from '@mui/material';
 import { LooksOne, LooksTwo, Looks3, Looks4, ThumbUp, ThumbDown } from '@mui/icons-material';
 import { Markdown } from '../markdown/Markdown';
 import { randomizeList, shuffle } from '../../util/random.util';
@@ -37,8 +37,6 @@ export interface QuestionCardProps {
     question: string;
     /** Answer marksdown */
     answers: Answers;
-    /** MUI Card properties */
-    card?: CardProps;
     /** MUI Button Properties */
     button?: ButtonProps;
     /**
@@ -71,7 +69,6 @@ export interface QuestionCardProps {
 export const QuestionCard = ({
     question,
     answers,
-    card = { variant: 'outlined' },
     button = {variant: 'contained', fullWidth: true},
     onCorrectAnswer = () => {},
     onWrongAnswer = () => {},
@@ -103,39 +100,34 @@ export const QuestionCard = ({
     };    
 
     return (
-        <Card {...card}>
-            <CardContent>
+        <Grid container spacing={2}>
+            <Grid item xs={12}>
                 <Markdown text={question}/>
-            </CardContent>
-            <CardActions>
-                <Grid container spacing={2}>
-                    {selectedAnswers.map(({text, correct, id}, i) => {
-                        const off = disabled.find(item => item === id) !== undefined;
-                        const icon = off ? (correct ? correctIcon : wrongIcon) : icons[i];
-                        const color = off ? (correct ? 'success' : 'error') : 'primary';
-                        // styled()
-                        return (
-                            <Grid item xs={6} key={i}>
-                                <Button 
-                                    {...button}
-                                    disabled={off}
-                                    startIcon={icon}
-                                    color={color}
-                                    onClick={(button) => action(button, id)}
-                                    sx={[
-                                        (theme) => ({
-                                            '&:disabled': { 
-                                                backgroundColor: theme.palette[color][theme.palette.mode],
-                                                color: correct ? theme.palette[color].contrastText : (theme.palette.mode === 'dark' ? '#0009' : '#fff9')
-                                            } 
-                                        })
-                                    ]}>
-                                        <Markdown inline text={text}/>
-                                </Button>
-                            </Grid>
-                        );
-                    })}
-                </Grid>
-            </CardActions>
-        </Card>);
+            </Grid>
+            {selectedAnswers.map(({text, correct, id}, i) => {
+                const off = disabled.find(item => item === id) !== undefined;
+                const icon = off ? (correct ? correctIcon : wrongIcon) : icons[i];
+                const color = off ? (correct ? 'success' : 'error') : 'primary';
+                return (
+                    <Grid item xs={6} key={i}>
+                        <Button 
+                            {...button}
+                            disabled={off}
+                            startIcon={icon}
+                            color={color}
+                            onClick={(button) => action(button, id)}
+                            sx={[
+                                (theme) => ({
+                                    '&:disabled': { 
+                                        backgroundColor: theme.palette[color][theme.palette.mode],
+                                        color: correct ? theme.palette[color].contrastText : (theme.palette.mode === 'dark' ? '#0009' : '#fff9')
+                                    } 
+                                })
+                            ]}>
+                                <Markdown inline text={text}/>
+                        </Button>
+                    </Grid>
+                );
+            })}
+        </Grid>);
 };
