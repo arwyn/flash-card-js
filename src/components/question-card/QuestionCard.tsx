@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardProps, CardContent, CardActions, Button, ButtonProps, Grid } from '@mui/material';
 import { LooksOne, LooksTwo, Looks3, Looks4, ThumbUp, ThumbDown } from '@mui/icons-material';
 import { Markdown } from '../markdown/Markdown';
-import { randomizeList, shuffle } from '../../util/random.uitl';
+import { randomizeList, shuffle } from '../../util/random.util';
 import { useState } from 'react';
 
 export type ButtonAction = (button: any, answerId?: string) => void;
