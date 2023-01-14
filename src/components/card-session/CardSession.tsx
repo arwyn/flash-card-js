@@ -33,7 +33,7 @@ export const CardSession = ({...props}: CardSessionProps) => {
         dispatch(populate({cards: cards.slice(0, 10).map(({id, card}) => ({id, ...card}))}));
     }
 
-    const updateSessionScore = (scores) => {
+    const updateSessionScore = (scores: any) => {
         dispatch(updateScore({scores}));
     }
 

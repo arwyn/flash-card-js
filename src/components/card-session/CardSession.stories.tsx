@@ -36,7 +36,7 @@ const NewSessionMockedState: PartialState = {
             },
             wrong: Object.fromEntries(Array.from({length: 5}, (_,j) => ([`answer-wrong-${i}-${j}`, `Wrong Answer ${i} ${j}`])))
         }
-    })).reduce((state, {id, ...card}) => {
+    })).reduce((state: CardSessionState, {id, ...card}) => {
         state.cards[id] = card;
         state.scores[id] = {score: 0, updated: false};
         return state;
