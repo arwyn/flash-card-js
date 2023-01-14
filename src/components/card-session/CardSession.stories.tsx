@@ -70,7 +70,7 @@ export default {
     excludeStories: /.*MockedState$/
 } as ComponentMeta<typeof CardSession>;
 
-const Template: ComponentStory<typeof CardSession> = (args) => <CardSession/>;
+const Template: ComponentStory<typeof CardSession> = (args) => <CardSession {...args}/>;
 
 export const Default = Template.bind({});
 Default.decorators = [

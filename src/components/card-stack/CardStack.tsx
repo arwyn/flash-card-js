@@ -3,32 +3,29 @@ import { ArticleOutlined } from '@mui/icons-material';
 import { QuestionCard } from '../question-card/QuestionCard';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { incrementFailure, markSuccessAndRemove, moveCardToBottomOfStack, Scores } from '../../app/store/card-stack';
+import { incrementFailure, markSuccessAndRemove, moveCardToBottomOfStack } from '../../app/store/card-stack';
 import { shallowEqual } from 'react-redux';
 
 export interface CardStackProps {
-    onComplete?: (scores: Scores) => void;
     successPause?: number;
 };
 
 /**
  * Question Card Stack
  */
-export const CardStack = ({successPause = 1000, onComplete = () => {}}: CardStackProps) => {
+export const CardStack = ({successPause = 1000}: CardStackProps) => {
     const top = useAppSelector((state) => {
         const entry = Object.entries(state.cardStack.cards).find(([key,]) => key === state.cardStack.stack[0]);
         return {
             id: entry ? entry[0] : '',
-            card: entry ? entry[1] : undefined
+            card: entry ? entry[1] : undefined,
+            score: entry ? state.cardStack.scores[entry[0]].failures : 0
         };
     }, shallowEqual);
 
-    const scores = useAppSelector((state) => {
-        return state.cardStack.scores;
-    });
-
     const [errorCount, setErrorCount] = useState(0);
     const [startTime, setStartTime] = useState(Date.now());
+    const [cardStartTime, setCardStartTime] = useState(Date.now());
 
     const dispatch = useAppDispatch();
 
@@ -50,15 +47,14 @@ export const CardStack = ({successPause = 1000, onComplete = () => {}}: CardStac
                 dispatch(markSuccessAndRemove({eclipsedTime, questionId: questionId ? questionId : top.id}));
                 setStartTime(Date.now());
             }
+            setCardStartTime(Date.now());
         }, successPause);
     }
 
-    if (!top.card && Object.keys(scores).length > 0) {
-        onComplete(scores);
-    }
-
     return top.card ? (<QuestionCard 
-            id={top.id} 
+            id={top.id}
+            score={top.score}
+            startTime={cardStartTime}
             onCorrectAnswer={onCorrectAnswer} 
             onWrongAnswer={onWrongAnswer} 
             question={top.card.question} 

@@ -33,10 +33,14 @@ export interface Answers {
 export interface QuestionCardProps {
     /** Question ID */
     id?: string;
+    /** Current card score */
+    score: number;
     /** Question (Block Markdown) */
     question: string;
     /** Answer marksdown */
     answers: Answers;
+    /** Card Start Time */
+    startTime: number;
     /** MUI Button Properties */
     button?: ButtonProps;
     /**
@@ -69,6 +73,7 @@ export interface QuestionCardProps {
 export const QuestionCard = ({
     question,
     answers,
+    startTime,
     button = {variant: 'contained', fullWidth: true},
     onCorrectAnswer = () => {},
     onWrongAnswer = () => {},
@@ -85,7 +90,7 @@ export const QuestionCard = ({
 
     useEffect(() => {
         setDisabled([]);
-    }, [answers]);
+    }, [answers, startTime]);
 
     const icons = [(<LooksOne/>), (<LooksTwo/>), (<Looks3/>), (<Looks4/>)];
 

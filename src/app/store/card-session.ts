@@ -42,15 +42,16 @@ const initialState: CardSessionState = {
 }
 
 const calculateScore = (old: number, failures: number, speed: number) => {
-    // fail=0 && speed <= 1 -> *(1+1+1+3) -> *6
-    // fail=0 && speed <= 3 -> *(1+1+1) -> *3
-    // fail=0 && speed > 3 -> *(1+1) -> *2
-    // fail>0 -> *(1+(0.4 / fail)
-    const noFailFast = +(!failures && speed <= 1);
-    const noFailNorm = +(!failures && speed <= 3);
-    const noFailSlow = +(!failures && speed > 3);
-    const factor = 1 + (noFailFast * 3) + noFailNorm + noFailSlow + (failures ? 0 : .4 / failures);
-    return old * factor;
+    // fail=0 && speed <= 1 -> *(1+3+2+0+0) -> *6
+    // fail=0 && speed <= 3 -> *(1+0+2+0+0) -> *3
+    // fail=0 && speed > 3 -> *(1+0+0+1+0) -> *2
+    // fail>0 -> *(1+(0.4 / fail) -> *(1+0+0+0+X) -> *1.(~.4)
+    const noFailFast = +(!failures && speed <= 1000);
+    const noFailNorm = +(!failures && speed <= 3000);
+    const noFailSlow = +(!failures && speed > 3000);
+    const failScore = failures ? .4 / failures : 0;
+    const factor = 1 + (noFailFast * 3) + (noFailNorm * 2) + noFailSlow + failScore;
+    return !old ? factor : old * factor;
 };
 
 export const createCardSessionSlice = (initialState: CardSessionState) => {

@@ -73,6 +73,11 @@ export const createCardStackSlice = (initialState: QuestionCardStackState) => {
                 state.cards = cards.reduce((curr: {[id: string]: Card}, {id, ...card}) => { curr[id] = card; return curr; }, {});
                 state.scores = cards.reduce((curr: {[id: string]: Score}, {id}) => { curr[id] = {failures: 0, successSpeed: 0}; return curr; }, {});
                 state.stack = cards.map(({id}) => id);
+            },
+            clear: (state) => {
+                state.cards = {};
+                state.scores = {};
+                state.stack = [];
             }
         }
     });
@@ -80,6 +85,6 @@ export const createCardStackSlice = (initialState: QuestionCardStackState) => {
 
 const CardStackSlice = createCardStackSlice(initialState);
 
-export const {incrementFailure, moveCardToBottomOfStack, markSuccessAndRemove, populate} = CardStackSlice.actions;
+export const {incrementFailure, moveCardToBottomOfStack, markSuccessAndRemove, populate, clear} = CardStackSlice.actions;
 
 export default CardStackSlice.reducer;

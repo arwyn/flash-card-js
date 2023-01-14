@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Paper, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { populate } from '../../app/store/card-stack';
+import { populate, clear } from '../../app/store/card-stack';
 import { CardStack, CardStackProps } from '../card-stack/CardStack';
 import { Box } from '@mui/system';
 import { CardStackProgress } from '../card-stack-progress/CardStackProgress';
@@ -9,33 +9,43 @@ import { CardSessionProgress } from '../card-session-progress/CardSessionProgres
 import { updateScore } from '../../app/store/card-session';
 
 export interface CardSessionProps extends CardStackProps {
+    onComplete?: () => void;
 };
 
 /**
  * Question Card Stack
  */
-export const CardSession = ({...props}: CardSessionProps) => {
-    const enabled = useAppSelector((state) => {
-        return Object.keys(state.cardSession.cards).length > 0;
-    });
-
+export const CardSession = ( {onComplete = () => {}, ...props}: CardSessionProps) => {
     const stackInProgress = useAppSelector((state) => {
         return state.cardStack.stack.length > 0;
     });
 
-    const cards = useAppSelector((state) => {
-        return Object.entries(state.cardSession.cards).map(([id, card]) => ({id, card, score: state.cardSession.scores[id].score})).sort((a, b) => b.score - a.score);
+    const currentStackScores = useAppSelector((state) => {
+        return state.cardStack.scores;
     })
-    
+
+    const cards = useAppSelector((state) => {
+        return Object.entries(state.cardSession.cards)
+            .map(([id, card]) => ({id, card, score: state.cardSession.scores[id].score, updated: state.cardSession.scores[id].updated}))
+            .sort((a, b) => a.score - b.score);
+    });
+
+    const enabled = cards.filter(({updated}) => !updated).length > 0;
+
     const dispatch = useAppDispatch();
 
     const newStack = () => {
-        dispatch(populate({cards: cards.slice(0, 10).map(({id, card}) => ({id, ...card}))}));
+        dispatch(populate({cards: cards.filter(({updated}) => !updated).slice(0, 10).map(({id, card}) => ({id, ...card}))}));
     }
 
-    const updateSessionScore = (scores: any) => {
-        dispatch(updateScore({scores}));
+    if (!stackInProgress && Object.keys(currentStackScores).length > 0) {
+        dispatch(updateScore({changes: currentStackScores}));
+        dispatch(clear());
     }
+
+    if (cards.length && !enabled) {
+        onComplete();
+    };
 
     return !enabled ? (<Box>No session</Box>) : (<Paper elevation={1}>
         <Box sx={{backgroundColor: 'primary.light', width: '100%', display: 'flex', alignItems: 'center' }}>
@@ -47,7 +57,7 @@ export const CardSession = ({...props}: CardSessionProps) => {
             </Box>
         </Box>
         <Box sx={{p:2}}>
-        { stackInProgress ? (<CardStack onComplete={updateSessionScore}/>) : <Button variant='contained' onClick={newStack}>Start</Button> }
+        { stackInProgress ? (<CardStack {...props}/>) : <Button variant='contained' onClick={newStack}>Start</Button> }
         </Box>
     </Paper>);
 };
